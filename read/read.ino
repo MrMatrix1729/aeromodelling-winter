@@ -13,6 +13,11 @@ Servo rudder;
 
 #define FREQUENCY 100
 
+// sensor defaults
+#define A_SENSITIVITY 16384
+#define G_SENSITIVITY 131
+
+
 // PID parameters
 double setpoint = 0.0;  // Desired rotation (in degrees)
 double kp = 5.0;        // Proportional gain
@@ -58,12 +63,12 @@ void loop() {
   mpu.getMotion6();
 
   // Store gyroscope data in format we need with adjustments for error, 16384 and 131 are taken from datasheet of MPU6050 to convert raw values
-  accX = mpu.getAccelerationX() / 16384.0;
-  accY = mpu.getAccelerationY() / 16384.0;
-  accZ = mpu.getAccelerationZ() / 16384.0;
-  gyroX = mpu.getRotationX() / 131.0 + gyroXError;
-  gyroZ = mpu.getRotationZ() / 131.0 - gyroYError;
-  gyroY = mpu.getRotationY() / 131.0 + gyroZError;
+  accX = mpu.getAccelerationX() / A_SENSITIVITY;
+  accY = mpu.getAccelerationY() / A_SENSITIVITY;
+  accZ = mpu.getAccelerationZ() / A_SENSITIVITY;
+  gyroX = mpu.getRotationX() / G_SENSITIVITY + gyroXError;
+  gyroZ = mpu.getRotationZ() / G_SENSITIVITY - gyroYError;
+  gyroY = mpu.getRotationY() / G_SENSITIVITY + gyroZError;
 
   // To account for accumalating errors in gyro and accelerometer readings. Gyro reading is taken with 0.96 factor
   double correctedX = correctedAngle(gyroX, accX, accY, accZ, 0);
@@ -126,9 +131,9 @@ void calibrate () {
 
   while (c < 200) {
     mpu.getMotion6();
-    accX = mpu.getAccelerationX() / 16384.0 ;
-    accY = mpu.getAccelerationY() / 16384.0 ;
-    accZ = mpu.getAccelerationZ() / 16384.0 ;
+    accX = mpu.getAccelerationX() / A_SENSITIVITY ;
+    accY = mpu.getAccelerationY() / A_SENSITIVITY ;
+    accZ = mpu.getAccelerationZ() / A_SENSITIVITY ;
     // Sum all readings
     accXError = accXError + ((atan((accY) / sqrt(pow((accX), 2) + pow((accZ), 2))) * 180 / PI));
     accYError = accYError + ((atan(-1 * (accX) / sqrt(pow((accY), 2) + pow((accZ), 2))) * 180 / PI));
@@ -147,9 +152,9 @@ void calibrate () {
     gyroZ = mpu.getRotationY();
     gyroX = mpu.getRotationZ();
     // Sum all readings
-    gyroXError = gyroXError + (gyroX / 131.0);
-    gyroYError = gyroYError + (gyroY / 131.0);
-    gyroZError = gyroZError + (gyroZ / 131.0);
+    gyroXError = gyroXError + (gyroX / G_SENSITIVITY);
+    gyroYError = gyroYError + (gyroY / G_SENSITIVITY);
+    gyroZError = gyroZError + (gyroZ / G_SENSITIVITY);
     c++;
   }
   //Divide the sum by 200 to get the error value
