@@ -2,13 +2,14 @@
 #include <MPU6050.h>
 #include <MS5611.h>
 #include <Wire.h>
+#include <math.h>
 
 MPU6050 mpu;
 MS5611 ms5611;
 Servo elevatorL;
 Servo elevatorR;
 Servo aierlonL;
-Servo aielonR;
+Servo aierlonR;
 Servo rudder;
 
 #define elevatorPinL 9
@@ -18,6 +19,7 @@ Servo rudder;
 #define aierlonPinR 13
 
 #define FREQUENCY 100
+#define ALPHA 0.98
 
 // sensor defaults
 #define A_SENSITIVITY 16384
@@ -59,6 +61,8 @@ void setup() {
   // Attach the Servo variable to a pin:
   elevatorL.attach(elevatorPinL);
   elevatorR.attach(elevatorPinR);
+  aierlonL.attach(aierlonPinL);
+  aierlonR.attach(aierlonPinR);
   rudder.attach(rudderPin);
 
   // Setting up the barometer MS5611
@@ -126,7 +130,7 @@ double correctedAngle(int gyro, int accX, int accY, int accZ, int axis) {
   double accAngle = [ accAngleX, accAngleY ];
 
   // Adjusting based on proportion
-  double angle = gyro * 0.96 + accAngle[axis];
+  double angle = gyro * ALPHA + accAngle[axis] * (1 - ALPHA);
 
   return angle;
 }
