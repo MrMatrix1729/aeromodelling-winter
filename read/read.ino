@@ -14,8 +14,8 @@ Servo rudder;
 #define elevatorPinL 9
 #define elevatorPinR 10
 #define rudderPin 11
-#define aierlonPinL 11
-#define aierlonPinR 11
+#define aierlonPinL 12
+#define aierlonPinR 13
 
 #define FREQUENCY 100
 
